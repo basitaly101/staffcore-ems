@@ -1,0 +1,170 @@
+/* EmployeeBankCard.css */
+
+.flip-card {
+  width: 320px; /* Thoda bada size for better visibility */
+  height: 200px;
+  perspective: 1000px;
+  font-family: 'OCR A Std', monospace, sans-serif;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  backface-visibility: hidden;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+
+/* FRONT SIDE - Royal Navy/Black with Gold accents */
+.flip-card-front {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  padding: 20px;
+  color: #fff;
+}
+
+.card-glare {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+  transform: rotate(30deg);
+}
+
+.bank-name {
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+  color: #c5a059;
+  font-weight: bold;
+}
+
+.contactless {
+  position: absolute;
+  top: 60px;
+  right: 25px;
+  color: rgba(255,255,255,0.4);
+  transform: rotate(90deg);
+}
+
+/* Realistic Gold Chip */
+.chip {
+  width: 45px;
+  height: 35px;
+  background: linear-gradient(135deg, #c5a059 0%, #f9d976 50%, #c5a059 100%);
+  border-radius: 6px;
+  margin-top: 15px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 5px;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.chip-line {
+  height: 1px;
+  background: rgba(0,0,0,0.2);
+  width: 100%;
+}
+
+.card-number {
+  font-size: 1.25rem;
+  margin-top: 25px;
+  letter-spacing: 3px;
+  text-shadow: 2px 2px 2px rgba(0,0,0,0.5);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.card-footer {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.label {
+  font-size: 0.5rem;
+  color: #94a3b8;
+  display: block;
+}
+
+.val {
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.mc-logo {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 45px;
+}
+
+/* BACK SIDE */
+.flip-card-back {
+  background: #1e293b;
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+}
+
+.mag-strip {
+  width: 100%;
+  height: 45px;
+  background: #000;
+  margin-top: 20px;
+}
+
+.signature-area {
+  margin-top: 15px;
+  padding: 0 20px;
+}
+
+.sig-box {
+  background: rgba(255,255,255,0.8);
+  height: 35px;
+  width: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  border-radius: 4px;
+}
+
+.cvv-label {
+  font-size: 0.5rem;
+  color: #000;
+  margin-right: 10px;
+}
+
+.cvv-code {
+  color: #000;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.disclaimer {
+  font-size: 0.45rem;
+  padding: 20px;
+  color: #64748b;
+  text-align: center;
+  line-height: 1.4;
+}

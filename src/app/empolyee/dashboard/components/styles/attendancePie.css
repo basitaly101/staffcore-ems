@@ -1,0 +1,74 @@
+/* attendancePie.css */
+
+.ems-pie-card {
+  background: #ffffff !important;
+  padding: 25px !important;
+  border-radius: 30px !important;
+  width: 100% !important;
+  max-width: 350px !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease;
+}
+
+.ems-pie-card:hover {
+  transform: translateY(-5px);
+}
+
+.card-label {
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.pie-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Donut ke center mein score likhne ke liye */
+.pie-center-label {
+  position: absolute;
+  top: 50%;
+  left: 48%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.pie-center-label h6 {
+  color: #0f172a;
+  margin: 0;
+  line-height: 1;
+}
+
+.stat-text {
+  font-size: 0.9rem !important;
+  color: #64748b !important;
+}
+
+.performance-banner {
+  margin-top: 15px;
+  padding: 12px;
+  background: linear-gradient(145deg, #0f172a, #1e293b);
+  color: #ffffff;
+  border-radius: 15px;
+  text-align: center;
+  font-size: 0.85rem;
+  border-bottom: 3px solid #c5a059; /* Gold accent */
+}
+
+.performance-banner strong {
+  color: #c5a059;
+  font-size: 1rem;
+}
+
+/* Custom Cursor support from previous files */
+.ems-pie-card {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="6" fill="%23c5a059" stroke="white" stroke-width="2"/></svg>') 12 12, auto !important;
+}
