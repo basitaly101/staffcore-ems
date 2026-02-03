@@ -1,45 +1,43 @@
+/* ============================================================
+   1. GLOBAL VARIABLES (THEME ENGINE)
+   ============================================================ */
 :root {
-  --background: #f3f5f8;
-  --foreground: #1f2937;
-
-  --card-bg: #ffffff;
-  --border-color: #e5e7eb;
-  --primary: #0b145e;
-  --success: #22c55e;
-  --error: #dc2626;
+  /* Core Colors (Black & Green Theme) */
+  --background: #000000;       /* Pure Black */
+  --foreground: #ffffff;       /* Pure White Text */
+  
+  --card-bg: #0a0a0a;          /* Darkest Grey for Cards */
+  --input-bg: #111827;         /* Slightly lighter for Inputs */
+  
+  --border-color: rgba(255, 255, 255, 0.08); /* Subtle Borders */
+  
+  --primary: #22c55e;          /* Neon Green */
+  --primary-glow: rgba(34, 197, 94, 0.5);
+  
+  --text-muted: #94a3b8;       /* Muted Grey Text */
+  --error: #ef4444;            /* Red for Errors */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b0f1a;
-    --foreground: #e5e7eb;
-
-    --card-bg: #111827;
-    --border-color: #1f2937;
-    --primary: #4f6df5;
-    --success: #22c55e;
-    --error: #f87171;
-  }
-}
-
+/* ============================================================
+   2. RESET & BASE STYLES
+   ============================================================ */
 html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+  height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
-    'Helvetica Neue', sans-serif;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased; /* Sharp Fonts */
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* RESET */
+/* Generic Reset */
 *,
 *::before,
 *::after {
@@ -48,54 +46,67 @@ body {
   margin: 0;
 }
 
-/* LINKS */
+/* ============================================================
+   3. TEXT SELECTION (Premium Feel)
+   ============================================================ */
+/* Jab user text select karega to Green highlight aayega */
+::selection {
+  background: var(--primary);
+  color: #000000;
+}
+
+/* ============================================================
+   4. SCROLLBAR (Dark & Sleek)
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333333; 
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary); /* Green on hover */
+}
+
+/* ============================================================
+   5. DEFAULTS FOR LINKS & BUTTONS
+   ============================================================ */
 a {
   color: inherit;
   text-decoration: none;
+  transition: color 0.2s;
 }
 
-/* IMAGES */
-img {
-  max-width: 100%;
-  display: block;
+a:hover {
+  color: var(--primary);
 }
 
-/* FORM ELEMENTS (SAFE DEFAULTS) */
-input,
-button,
-textarea,
-select {
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-}
-
-/* BUTTON RESET */
 button {
   background: none;
   border: none;
   cursor: pointer;
+  font-family: inherit;
 }
 
-/* SCROLLBAR (DESKTOP ONLY, CLEAN) */
-@media (min-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
-  }
+/* ============================================================
+   6. GLOBAL INPUT STYLES (Backup)
+   ============================================================ */
+/* Agar kisi input par class lagana bhool jayein to ye style lega */
+input, textarea, select {
+  background: var(--input-bg);
+  color: white;
+  border: 1px solid var(--border-color);
+  font-family: inherit;
 }
 
-/* DARK MODE SUPPORT */
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid var(--primary);
+  border-color: transparent;
 }

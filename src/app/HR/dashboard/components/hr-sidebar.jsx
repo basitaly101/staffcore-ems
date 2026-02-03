@@ -34,53 +34,43 @@ const THEME = {
   border: 'rgba(255, 255, 255, 0.08)'
 };
 
-// --- STYLES WITH HARDWARE ACCELERATION ---
-
-const Root = styled('div')({
-  display: 'flex',
-  minHeight: '100vh',
-  backgroundColor: THEME.bg,
-  willChange: 'auto', // Performance boost
-});
-
 const StyledDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     width: open ? DRAWER_WIDTH : COLLAPSED_WIDTH,
     flexShrink: 0,
     whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
     '& .MuiDrawer-paper': {
       width: open ? DRAWER_WIDTH : COLLAPSED_WIDTH,
       backgroundColor: THEME.sidebar,
       color: THEME.textMain,
       borderRight: 'none',
       height: '100vh',
-      position: 'relative',
-      // ✨ SMOOTH TRANSITION (Linear-out, slow-in)
-      transition: theme.transitions.create(['width', 'transform'], {
-        easing: 'cubic-bezier(0.4, 0, 0.2, 1)', 
-        duration: 200, 
+      position: 'fixed', // Position fixed to prevent gaps
+      transition: theme.transitions.create('width', {
+        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        duration: 250,
       }),
-      borderTopRightRadius: '24px',
-      borderBottomRightRadius: '24px',
       overflowX: 'hidden',
-      // 🔥 GPU ACCELERATION
-      transform: 'translateZ(0)', 
-      backfaceVisibility: 'hidden',
-      '&::-webkit-scrollbar': { display: 'none' },
+      zIndex: 1201,
     },
   }),
 );
 
-const MainContent = styled('main')({
-  flexGrow: 1,
-  height: '100vh',
-  overflowY: 'auto',
-  backgroundColor: THEME.bg,
-  padding: '24px',
-  // Isse content ka reflow smooth hota hai
-  contain: 'content', 
-});
+const MainContent = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    minHeight: '100vh',
+    backgroundColor: THEME.bg,
+    // 🔥 GAP FIX: Margin is exactly the width of sidebar
+    marginLeft: open ? DRAWER_WIDTH : COLLAPSED_WIDTH, 
+    transition: theme.transitions.create('margin', {
+      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      duration: 250,
+    }),
+    padding: '32px',
+    width: `calc(100% - ${open ? DRAWER_WIDTH : COLLAPSED_WIDTH}px)`,
+  })
+);
 
 export default function PremiumSidebar({ children }) {
   const [open, setOpen] = useState(true);
@@ -103,10 +93,8 @@ export default function PremiumSidebar({ children }) {
     return () => unsubscribe();
   }, [router]);
 
-  // Logout function
   const handleLogout = () => signOut(auth).then(() => router.push('/login'));
 
-  // Memoize Menu to prevent re-renders on toggle
   const menuItems = useMemo(() => [
     { text: 'Dashboard', icon: <DashboardRounded /> },
     { text: 'Employees', icon: <PeopleAltRounded /> },
@@ -116,91 +104,66 @@ export default function PremiumSidebar({ children }) {
   ], []);
 
   return (
-    <Root>
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <StyledDrawer variant="permanent" open={open}>
-        
-        {/* LOGO SECTION */}
         <Box
           onClick={() => setOpen(!open)}
           sx={{
             p: 3, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', borderBottom: `1px solid ${THEME.border}`, mb: 2, minHeight: '90px',
-            '&:active': { transform: 'scale(0.98)' }, // Touch feedback
-            transition: 'transform 0.1s'
+            cursor: 'pointer', borderBottom: `1px solid ${THEME.border}`, mb: 2, minHeight: '90px'
           }}
         >
-          <Box sx={{ position: 'relative', width: open ? 160 : 38, height: 45, transition: '0.2s' }}>
-            {open ? (
-              <Image src={logo} alt="Logo" fill style={{ objectFit: 'contain' }} priority />
-            ) : (
-              <Image src={icon} alt="Icon" fill style={{ objectFit: 'contain' }} priority />
-            )}
+          <Box sx={{ position: 'relative', width: open ? 160 : 38, height: 45 }}>
+            <Image src={open ? logo : icon} alt="Logo" fill style={{ objectFit: 'contain' }} priority />
           </Box>
         </Box>
 
-        {/* NAVIGATION */}
         <List sx={{ px: 1.5, flexGrow: 1 }}>
           {menuItems.map((item) => {
             const isActive = activeItem === item.text;
             return (
               <ListItem key={item.text} disablePadding sx={{ mb: 0.5, display: 'block' }}>
-                <Tooltip title={!open ? item.text : ""} placement="right" arrow>
-                  <ListItemButton
-                    onClick={() => setActiveItem(item.text)}
-                    sx={{
-                      borderRadius: '12px',
-                      bgcolor: isActive ? THEME.primaryGlow : 'transparent',
-                      color: isActive ? THEME.primary : THEME.textMuted,
-                      justifyContent: open ? 'initial' : 'center',
-                      px: 2.5,
-                      minHeight: '48px',
-                      transition: 'background 0.2s, color 0.2s',
-                      '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' }
-                    }}
-                  >
-                    <ListItemIcon sx={{ 
-                      minWidth: 0, mr: open ? 2 : 'auto', color: 'inherit',
-                      transition: 'margin 0.2s'
-                    }}>
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary={item.text} 
-                      sx={{ 
-                        display: open ? 'block' : 'none',
-                        '& .MuiTypography-root': { fontWeight: isActive ? 700 : 500, fontSize: '0.9rem' } 
-                      }} 
-                    />
-                  </ListItemButton>
-                </Tooltip>
+                <ListItemButton
+                  onClick={() => setActiveItem(item.text)}
+                  sx={{
+                    borderRadius: '12px',
+                    bgcolor: isActive ? THEME.primaryGlow : 'transparent',
+                    color: isActive ? THEME.primary : THEME.textMuted,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5, minHeight: '48px',
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 0, mr: open ? 2 : 'auto', color: 'inherit' }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={item.text} 
+                    sx={{ display: open ? 'block' : 'none', '& span': { fontWeight: isActive ? 700 : 500 } }} 
+                  />
+                </ListItemButton>
               </ListItem>
             );
           })}
         </List>
 
-        {/* PROFILE SECTION */}
         <Box sx={{ p: 2, borderTop: `1px solid ${THEME.border}` }}>
-          <Stack direction="row" spacing={2} alignItems="center" sx={{ px: 1, minHeight: 40 }}>
-            {loading ? (
-              <Skeleton variant="circular" width={40} height={40} sx={{ bgcolor: 'grey.900' }} />
-            ) : (
-              <Avatar sx={{ bgcolor: THEME.primary, color: '#000', fontWeight: 'bold', width: 40, height: 40, flexShrink: 0 }}>
-                {userData?.fullName?.charAt(0) || 'U'}
-              </Avatar>
-            )}
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Avatar sx={{ bgcolor: THEME.primary, color: '#000', fontWeight: 'bold' }}>
+              {userData?.fullName?.charAt(0) || 'U'}
+            </Avatar>
             {open && (
               <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
                 <Typography variant="body2" noWrap sx={{ color: '#fff', fontWeight: 700 }}>
                   {userData?.fullName || 'User'}
                 </Typography>
-                <Typography variant="caption" sx={{ color: THEME.textMuted, display: 'block' }}>
+                <Typography variant="caption" sx={{ color: THEME.textMuted }}>
                   {userData?.role || 'Employee'}
                 </Typography>
               </Box>
             )}
             {open && (
-               <IconButton onClick={handleLogout} size="small" sx={{ color: '#ef4444' }}>
+              <IconButton onClick={handleLogout} size="small" sx={{ color: '#ef4444' }}>
                 <LogoutRounded fontSize="small" />
               </IconButton>
             )}
@@ -208,9 +171,9 @@ export default function PremiumSidebar({ children }) {
         </Box>
       </StyledDrawer>
 
-      <MainContent>
+      <MainContent open={open}>
         {children}
       </MainContent>
-    </Root>
+    </Box>
   );
 }

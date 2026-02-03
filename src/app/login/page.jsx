@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
@@ -15,77 +15,113 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const cursor = document.querySelector('.pro-cursor');
+    const moveCursor = (e) => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    };
+    window.addEventListener('mousemove', moveCursor);
+    return () => window.removeEventListener('mousemove', moveCursor);
+  }, []);
+
   const handleLogin = async () => {
-    // ... (Login logic same as before) ...
     setError('');
     setLoading(true);
     try {
       const res = await signInWithEmailAndPassword(auth, email, password);
       const snap = await getDoc(doc(db, 'users', res.user.uid));
-      if (!snap.exists()) { setError('User profile not found'); return; }
+      if (!snap.exists()) {
+        setError(role === 'employee' ? 'Account not found. Contact HR.' : 'HR account not found.');
+        return;
+      }
       const user = snap.data();
-      if (user.role !== role) { setError('Role mismatch. Access denied.'); return; }
-      if (role === 'hr' && user.status !== 'approved') { setError('HR account pending approval'); return; }
+      if (user.role !== role) { setError('Incorrect role selected.'); return; }
+      if (role === 'hr' && user.status !== 'approved') { setError('Account pending approval.'); return; }
       window.location.href = role === 'employee' ? '/employee/dashboard' : '/hr/dashboard';
-    } catch { setError('Invalid email or password'); } finally { setLoading(false); }
+    } catch (err) {
+      setError('Invalid email or password');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="login-page">
-      <div className="ems-login-wrapper">
-
-        {/* LEFT PANEL (Desktop Only) */}
-        <div className="ems-left">
-          <div className="ems-brand-box">
-            <h1>Hello!</h1>
-            <p>Have a <span>GOOD DAY</span></p>
-            <small>StaffCore Employee Management System</small>
+    <div className="pro-login-page">
+      <div className="pro-cursor"></div>
+      
+      <div className="login-grid-container">
+        {/* LEFT SECTION */}
+        <div className="login-visual-box">
+          <div className="visual-overlay"></div>
+          <div className="visual-content">
+            <div className="pro-tag">STAFFCORE V3</div>
+            <h1 className="visual-title">Secure <span>Access.</span></h1>
+            <p className="visual-subtitle">Login to manage your daily tasks and workspace efficiently.</p>
+            
+            <div className="stats-row">
+              <div className="stat-item"><strong>99.9%</strong><span>Uptime</span></div>
+              <div className="stat-item"><strong>Secure</strong><span>Data</span></div>
+            </div>
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
-        <div className="ems-right">
-          <div className="ems-login-card">
-
-            <div className="ems-logo">
-              <Image src={logo} alt="StaffCore Logo" priority />
+        {/* RIGHT SECTION */}
+        <div className="login-form-box">
+          <div className="form-card">
+            <div className="pro-logo-area">
+              <Image src={logo} alt="Logo" width={50} height={50} priority />
             </div>
 
-            {/* Mobile Greeting Text */}
-            <div className="ems-mobile-text">
-              <h1>Hello!</h1>
-              <p>Have a <span>GOOD DAY</span></p>
+            <div className="form-head">
+              <h2>Sign In</h2>
+              <p>Enter your details to continue</p>
             </div>
 
-            <h2 className="ems-title">Login</h2>
-
-            <div className="ems-toggle">
-              <button className={role === 'employee' ? 'active' : ''} onClick={() => setRole('employee')}>Employee</button>
-              <button className={role === 'hr' ? 'active' : ''} onClick={() => setRole('hr')}>HR</button>
+            <div className="role-switch-premium">
+              <button 
+                className={role === 'employee' ? 'switch-btn active' : 'switch-btn'} 
+                onClick={() => setRole('employee')}
+              >
+                Employee
+              </button>
+              <button 
+                className={role === 'hr' ? 'switch-btn active' : 'switch-btn'} 
+                onClick={() => setRole('hr')}
+              >
+                HR Manager
+              </button>
             </div>
 
-            <input type="email" className="ems-input" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-            <input type="password" className="ems-input" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+            <div className="form-inputs">
+              <div className="input-field-wrapper">
+                <label>Email Address</label>
+                <input type="email" placeholder="email@company.com" value={email} onChange={e => setEmail(e.target.value)} />
+              </div>
 
-            {/* ✅ FORGOT PASSWORD MOVED HERE (Right under password) */}
-            <p className="ems-forgot">
-              <a href="/forgot-password">Forgot password?</a>
-            </p>
+              <div className="input-field-wrapper">
+                <label>Password</label>
+                <input type="password" placeholder="Enter password" value={password} onChange={e => setPassword(e.target.value)} />
+              </div>
+            </div>
 
-            {error && <p className="ems-error">{error}</p>}
+            <div className="form-options">
+              <a href="/forgot-password">Forgot Password?</a>
+            </div>
 
-            <button className="ems-login-btn" onClick={handleLogin} disabled={loading}>
-              {loading ? 'Signing in...' : `Login as ${role.toUpperCase()}`}
+            {error && <div className="pro-error-msg">{error}</div>}
+
+            <button className="pro-login-btn" onClick={handleLogin} disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign In'}
             </button>
 
             {role === 'hr' && (
-              <p className="ems-signup">
-                New HR? <a href="/HR/signup">Create account</a>
-              </p>
+              <div className="hr-signup-link">
+                Don't have an HR account? <a href="/HR/signup">Register Now</a>
+              </div>
             )}
           </div>
         </div>
-
       </div>
     </div>
   );
