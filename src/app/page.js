@@ -6,6 +6,8 @@ import HRSignupPage from "./HR/signup/page";
 import VideoLoader from "./components/loader"; // loader component
 import ForgotPassword from './forgot-password/page';
 import EmployeeDashboard from './empolyee/dashboard/page';
+import HRDashboard from './HR/dashboard/page';
+
 
 import './globals.css';
 export default function Page() {
@@ -22,6 +24,8 @@ export default function Page() {
           <HRSignupPage />
           <ForgotPassword />
           <EmployeeDashboard />
+          <HRDashboard />
+          
         </div>
       )}
     </>

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Box, Grid, Container, Typography, Stack, Fade } from '@mui/material';
+import { Box, Grid, Container, Typography, Stack, Fade, Skeleton } from '@mui/material';
 import { 
   TrendingUpRounded, 
   WatchLaterRounded, 
@@ -9,13 +9,18 @@ import {
   StarRounded 
 } from '@mui/icons-material';
 
+// Firebase Imports
+import { auth, db } from '@/app/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
+
 // Components
 import EmployeeSidebar from './components/EmployeeSidebar';
 import EmployeeTopbar from './components/EmployeeTopbar';
 import ProfileCard from './components/ProfileCard';
-import AttendanceStatus from './components/AttendanceStatus';
+import AttendanceStatus from './components/AttendanceApprove'; // Fixed spelling
 import EmployeeAttendancePie from './components/EmployeeAttendancePie';
-import TaskList from './components/TaskList';
+import EmployeeTasks from './components/EmployeeTasks'; // Renamed and fixed
 import EmployeeIDCard from './components/EmployeeIDCard';
 import EmployeeBankCard from './components/EmployeeBankCard';
 import CalendarCard from './components/CalendarCard';
@@ -23,37 +28,64 @@ import TaskCompletionChart from './components/TaskCompletionChart';
 
 export default function EmployeeDashboard() {
   const [checked, setChecked] = React.useState(true);
+  const [userData, setUserData] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
-  // --- Premium Component: Quick Stats Tiles ---
+  // --- Real-time Data Fetching ---
+  React.useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const userDocRef = doc(db, 'users', user.uid);
+        const unsubscribeDoc = onSnapshot(userDocRef, (docSnap) => {
+          if (docSnap.exists()) {
+            setUserData({ uid: user.uid, ...docSnap.data() });
+          }
+          setLoading(false);
+        });
+        return () => unsubscribeDoc();
+      } else {
+        setLoading(false);
+      }
+    });
+    return () => unsubscribeAuth();
+  }, []);
+
+  // --- Premium Component: Quick Stats Tiles (Dark Mode Styled) ---
   const StatTile = ({ icon, label, value, color }) => (
     <Box sx={{
-      p: 3, borderRadius: '24px', bgcolor: '#fff',
-      boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
-      border: '1px solid rgba(0,0,0,0.05)',
+      p: 3, borderRadius: '24px', 
+      bgcolor: '#0a0a0a', // Solid Black
+      border: '1px solid #1a1a1a', // Subtle Border
       display: 'flex', alignItems: 'center', gap: 2,
-      transition: '0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: '0 15px 35px rgba(197, 160, 89, 0.1)' }
+      transition: '0.3s', 
+      '&:hover': { 
+        transform: 'translateY(-5px)', 
+        borderColor: '#10b981', // Glow Green on hover
+        boxShadow: '0 10px 30px rgba(16, 185, 129, 0.1)' 
+      }
     }}>
       <Box sx={{ bgcolor: `${color}15`, p: 1.5, borderRadius: '15px', color: color }}>{icon}</Box>
       <Box>
-        <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{label}</Typography>
-        <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>{value}</Typography>
+        <Typography variant="caption" sx={{ color: '#666', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+          {label}
+        </Typography>
+        <Typography variant="h6" sx={{ fontWeight: 800, color: '#fff' }}>
+          {loading ? <Skeleton sx={{ bgcolor: '#222' }} width={60} /> : value}
+        </Typography>
       </Box>
     </Box>
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f1f5f9' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#000' }}> {/* Pure Black BG */}
       <EmployeeSidebar />
 
-      {/* MAIN CONTENT AREA 
-          pt: 100px ensures it stays below the TopBar
-      */}
       <Box 
         component="main" 
         sx={{ 
           flexGrow: 1, 
           p: { xs: 2, md: 4 }, 
-          pt: { xs: '100px', md: '110px' }, // Fix overlap
+          pt: { xs: '100px', md: '110px' }, 
           width: '100%',
           overflowX: 'hidden'
         }}
@@ -61,63 +93,67 @@ export default function EmployeeDashboard() {
         <Fade in={checked} timeout={800}>
           <Container maxWidth="xl" sx={{ p: '0 !important' }}>
             
-            {/* Topbar: Greeting */}
-            <EmployeeTopbar />
+            <EmployeeTopbar userData={userData} loading={loading} />
 
-            {/* NEW: QUICK STATS ROW (Eye-Catching) */}
+            {/* QUICK STATS ROW */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
               <Grid item xs={12} sm={6} md={3}>
-                <StatTile icon={<WatchLaterRounded />} label="Working Hours" value="164h / Mo" color="#0f172a" />
+                <StatTile icon={<WatchLaterRounded />} label="Working Hours" value={userData?.workingHours || "0h / Mo"} color="#10b981" />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <StatTile icon={<EventAvailableRounded />} label="Days Present" value="22 Days" color="#c5a059" />
+                <StatTile icon={<EventAvailableRounded />} label="Days Present" value={`${userData?.totalPresent || 0} Days`} color="#fff" />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <StatTile icon={<TrendingUpRounded />} label="Performance" value="98%" color="#2e7d32" />
+                <StatTile icon={<TrendingUpRounded />} label="Performance" value={`${userData?.performance || 0}%`} color="#10b981" />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <StatTile icon={<StarRounded />} label="Rewards" value="12 Badges" color="#ed6c02" />
+                <StatTile icon={<StarRounded />} label="Rewards" value={`${userData?.badges || 0} Badges`} color="#f59e0b" />
               </Grid>
             </Grid>
 
             {/* MAIN GRID LAYOUT */}
-            <Grid container spacing={4}>
-              
-              {/* Profile & Main Stats */}
+            <Grid container spacing={3}>
+              {/* Profile & Punch-In Section */}
               <Grid item xs={12} lg={8}>
-                <ProfileCard />
+                <ProfileCard data={userData} loading={loading} />
               </Grid>
               <Grid item xs={12} lg={4}>
-                <AttendanceStatus />
+                <AttendanceStatus /> {/* Punch In Card */}
               </Grid>
 
-              {/* Attendance Chart & Tasks */}
+              {/* Attendance Analytics & Tasks */}
               <Grid item xs={12} md={6} lg={5}>
                 <EmployeeAttendancePie />
               </Grid>
               <Grid item xs={12} md={6} lg={7}>
-                <TaskList />
+                {/* Yahan TaskList component ko userData pass karein taake department filter ho sake */}
+                <EmployeeTasks department={userData?.department} />
               </Grid>
 
-              {/* Identity Section (Royal Theme) */}
+              {/* Bottom Details Section */}
               <Grid item xs={12} md={6} lg={4}>
-                <Stack spacing={4}>
-                  <EmployeeIDCard />
+                <Stack spacing={3}>
+                  <EmployeeIDCard user={userData} />
                   <Box sx={{ 
                     p: 3, borderRadius: '24px', 
-                    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                    color: '#fff', textAlign: 'center', border: '1px solid #c5a059'
+                    background: 'linear-gradient(135deg, #0a0a0a 0%, #111 100%)',
+                    color: '#fff', textAlign: 'center', border: '1px solid #1a1a1a'
                   }}>
-                    <Typography variant="h6" sx={{ color: '#c5a059', fontWeight: 800 }}>Elite Member</Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.7 }}>Since Oct 2023</Typography>
+                    <Typography variant="h6" sx={{ color: '#10b981', fontWeight: 800 }}>
+                      {userData?.designation || 'Elite Member'}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#666' }}>
+                      Official Employee of Staff-Portal
+                    </Typography>
                   </Box>
                 </Stack>
               </Grid>
+
               <Grid item xs={12} md={6} lg={8}>
-                <EmployeeBankCard />
+                <EmployeeBankCard bankInfo={userData?.bankDetails} />
               </Grid>
 
-              {/* Analytics & Schedule */}
+              {/* Charts & Calendar */}
               <Grid item xs={12} lg={7}>
                 <TaskCompletionChart />
               </Grid>

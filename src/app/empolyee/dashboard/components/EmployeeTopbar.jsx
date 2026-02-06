@@ -1,9 +1,14 @@
 'use client';
 
-import { Box, Typography, Stack, Breadcrumbs, Link } from '@mui/material';
+import { Box, Typography, Stack, Breadcrumbs, Link, Skeleton } from '@mui/material';
 import { TodayRounded, WavingHandRounded } from '@mui/icons-material';
 
-export default function EmployeeTopbar({ name = "Muhammad Ali" }) {
+// Hum yahan userData aur loading props receive kar rahe hain
+export default function EmployeeTopbar({ userData, loading }) {
+  
+  // Display name handle kar rahe hain: Pehle Firebase ka data, phir fallback
+  const displayName = userData?.fullName || "Employee";
+
   // Get current date
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -40,16 +45,23 @@ export default function EmployeeTopbar({ name = "Muhammad Ali" }) {
               letterSpacing: '-1px'
             }}
           >
-            Welcome Back, {name.split(' ')[0]}
+            {loading ? (
+              <Skeleton width={250} />
+            ) : (
+              // split(' ')[0] se sirf pehla naam dikhayenge (e.g. "Welcome Back, Muhammad")
+              `Welcome Back, ${displayName.split(' ')[0]}`
+            )}
           </Typography>
-          <WavingHandRounded sx={{ color: '#c5a059', fontSize: 32 }} />
+          {!loading && <WavingHandRounded sx={{ color: '#c5a059', fontSize: 32 }} />}
         </Stack>
         
         <Breadcrumbs aria-label="breadcrumb" sx={{ '& .MuiTypography-root': { fontSize: '0.85rem' } }}>
           <Link underline="hover" color="inherit" href="#">
             StaffCore
           </Link>
-          <Typography color="text.primary" sx={{ fontWeight: 600 }}>Employee Dashboard</Typography>
+          <Typography color="text.primary" sx={{ fontWeight: 600 }}>
+            {userData?.jobRole || "Dashboard"}
+          </Typography>
         </Breadcrumbs>
       </Stack>
 
@@ -64,7 +76,7 @@ export default function EmployeeTopbar({ name = "Muhammad Ali" }) {
           display: 'flex',
           alignItems: 'center',
           gap: 1.5,
-          borderBottom: '3px solid #c5a059', // Royal Gold Accent
+          borderBottom: '3px solid #c5a059', 
           boxShadow: '0 8px 20px rgba(15, 23, 42, 0.2)'
         }}
       >

@@ -43,6 +43,11 @@ export default function HRSignupPage() {
       if (!snap.empty) {
         throw new Error('Account already exists with this email.');
       }
+      // Login logic mein check karein:
+if (userData.role === 'hr' && userData.status === 'pending') {
+  alert("Your account is pending admin approval. Please wait!");
+  return; 
+}
 
       const userCred = await createUserWithEmailAndPassword(auth, email, form.password.value);
 

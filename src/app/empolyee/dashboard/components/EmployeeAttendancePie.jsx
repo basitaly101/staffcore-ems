@@ -2,103 +2,129 @@
 
 import { useEffect, useState } from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '@/app/lib/firebase';
-import { getAuth } from 'firebase/auth';
-import { Box, Typography, Stack, Divider } from '@mui/material';
-import './styles/attendancePie.css';
+import { useDrawingArea } from '@mui/x-charts/hooks';
+import { styled } from '@mui/material/styles';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db, auth } from '@/app/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+// Yahan Stack hona zaroori hai 👇
+import { Box, Typography, Paper, CircularProgress, Stack } from '@mui/material';
+// --- Center Label Styling ---
+const StyledText = styled('text')(({ theme }) => ({
+  fill: '#fff',
+  textAnchor: 'middle',
+  dominantBaseline: 'central',
+  fontFamily: 'inherit',
+}));
 
-export default function EmployeeAttendancePie() {
-  const auth = getAuth();
-  const user = auth.currentUser;
+function PieCenterLabel({ value }) {
+  const { width, height, left, top } = useDrawingArea();
+  return (
+    <StyledText x={left + width / 2} y={top + height / 2}>
+      <tspan x={left + width / 2} dy="-0.5em" style={{ fontSize: 24, fontWeight: 900, fill: '#10b981' }}>{value}%</tspan>
+      <tspan x={left + width / 2} dy="1.5em" style={{ fontSize: 10, fill: '#666', fontWeight: 800 }}>ATTENDANCE</tspan>
+    </StyledText>
+  );
+}
 
-  const [stats, setStats] = useState({ present: 0, absent: 0, leave: 0, late: 0 });
-  const [performance, setPerformance] = useState(0);
+export default function AttendancePieChart() {
+  const [stats, setStats] = useState([
+    { label: 'Present', value: 0, color: '#10b981' },
+    { label: 'Late', value: 0, color: '#ffffff' },
+    { label: 'Absent', value: 0, color: '#333333' },
+    { label: 'Leave', value: 0, color: '#1a1a1a' },
+  ]);
+  const [percent, setPercent] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    const unsubAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Query: Sirf logged-in user ka attendance data
+        const q = query(
+          collection(db, 'attendance'),
+          where('userId', '==', user.uid)
+        );
 
-    const unsub = onSnapshot(collection(db, 'attendance'), (snapshot) => {
-      let totalEmployees = new Set();
-      let betterThan = 0;
-      let emp = { present: 0, absent: 0, leave: 0, late: 0 };
-      let scoreMap = {};
+        const unsubSnap = onSnapshot(q, (snapshot) => {
+          let counts = { present: 0, late: 0, absent: 0, leave: 0 };
+          let total = 0;
 
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        totalEmployees.add(data.employeeId);
-        if (!scoreMap[data.employeeId]) scoreMap[data.employeeId] = 0;
+          snapshot.forEach((doc) => {
+            const status = doc.data().status?.toLowerCase();
+            if (counts.hasOwnProperty(status)) {
+              counts[status]++;
+              total++;
+            }
+          });
 
-        if (data.status === 'present') scoreMap[data.employeeId] += 2;
-        if (data.status === 'late') scoreMap[data.employeeId] += 1;
-        if (data.status === 'absent') scoreMap[data.employeeId] -= 1;
+          // Chart data update
+          setStats([
+            { label: 'Present', value: counts.present, color: '#10b981' },
+            { label: 'Late', value: counts.late, color: '#ffffff' },
+            { label: 'Absent', value: counts.absent, color: '#444' },
+            { label: 'Leave', value: counts.leave, color: '#222' },
+          ]);
 
-        if (data.employeeId === user.uid) {
-          emp[data.status]++;
-        }
-      });
+          // Percentage Logic
+          const rate = total > 0 ? Math.round(((counts.present + counts.late) / total) * 100) : 0;
+          setPercent(rate);
+          setLoading(false);
+        });
 
-      const myScore = scoreMap[user.uid] || 0;
-      Object.values(scoreMap).forEach((score) => {
-        if (myScore > score) betterThan++;
-      });
-
-      const percent = totalEmployees.size > 0 
-        ? Math.round((betterThan / totalEmployees.size) * 100) 
-        : 0;
-
-      setStats(emp);
-      setPerformance(percent);
+        return () => unsubSnap();
+      }
     });
 
-    return () => unsub();
-  }, [user]);
+    return () => unsubAuth();
+  }, []);
 
-  const data = [
-    { label: 'Present', value: stats.present, color: '#c5a059' }, // Gold
-    { label: 'Absent', value: stats.absent, color: '#ef4444' },  // Red
-    { label: 'Leave', value: stats.leave, color: '#94a3b8' },   // Gray
-    { label: 'Late', value: stats.late, color: '#f59e0b' },    // Orange
-  ];
+  if (loading) return <CircularProgress sx={{ color: '#10b981', m: 'auto' }} />;
 
   return (
-    <Box className="ems-pie-card">
-      <Typography className="card-label" mb={2}>
-        ATTENDANCE ANALYTICS
+    <Paper 
+      elevation={0}
+      sx={{ 
+        p: 3, borderRadius: '28px', bgcolor: '#050505', border: '1px solid #1f1f1f',
+        width: '100%', maxWidth: '350px', textAlign: 'center'
+      }}
+    >
+      <Typography sx={{ color: '#fff', fontWeight: 800, fontSize: '0.9rem', mb: 2, letterSpacing: '1px' }}>
+        ANALYTICS
       </Typography>
 
-      <Box className="pie-container">
+      <Box sx={{ width: '100%', height: 220, position: 'relative' }}>
         <PieChart
-          series={[{
-            data,
-            innerRadius: 60,
-            outerRadius: 100,
-            paddingAngle: 5,
-            cornerRadius: 5,
-            cx: 120,
-          }]}
-          slotProps={{ legend: { hidden: true } }} // Custom legend niche banayenge
-          width={250}
-          height={220}
-        />
-        <div className="pie-center-label">
-          <Typography variant="h6" fontWeight={800}>{performance}%</Typography>
-          <Typography variant="caption">Score</Typography>
-        </div>
+          series={[
+            {
+              data: stats,
+              innerRadius: 70,
+              outerRadius: 100,
+              paddingAngle: 5,
+              cornerRadius: 6,
+              highlightScope: { fade: 'global', highlight: 'item' },
+              faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
+              valueFormatter: (item) => `${item.value} Days`,
+            },
+          ]}
+          slotProps={{ legend: { hidden: true } }} // Custom legend is better for mobile
+          height={200}
+        >
+          <PieCenterLabel value={percent} />
+        </PieChart>
       </Box>
 
-      <Stack spacing={1} mt={2}>
-        <Stack direction="row" justifyContent="space-between">
-          <Typography className="stat-text">Present Days</Typography>
-          <Typography fontWeight={700} color="#c5a059">{stats.present}</Typography>
-        </Stack>
-        <Divider sx={{ opacity: 0.1 }} />
-        <Box className="performance-banner">
-          <Typography variant="body2">
-            You are performing better than <strong>{performance}%</strong> of your colleagues.
-          </Typography>
-        </Box>
+      {/* Mini Legend Below */}
+      <Stack direction="row" justifyContent="center" spacing={2} mt={1}>
+        {stats.map((item) => (
+          <Stack key={item.label} direction="row" alignItems="center" spacing={0.5}>
+            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: item.color }} />
+            <Typography sx={{ color: '#666', fontSize: '0.65rem', fontWeight: 700 }}>
+              {item.label}
+            </Typography>
+          </Stack>
+        ))}
       </Stack>
-    </Box>
+    </Paper>
   );
 }

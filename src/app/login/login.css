@@ -1,238 +1,181 @@
-/* ============================================================
-   1. CUSTOM CURSOR (Premium Precision)
-   ============================================================ */
-.pro-cursor {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #22c55e;
-  background: rgba(34, 197, 94, 0.1);
-  border-radius: 50%;
-  position: fixed;
-  pointer-events: none;
-  z-index: 10000;
-  transform: translate(-50%, -50%);
+:root {
+  --black: #000000;
+  --dark-grey: #0a0a0a;
+  --border: #1f1f1f;
+  --green: #10b981;
+  --white: #ffffff;
+  --text-muted: #71717a;
 }
 
-.pro-login-page {
-  background-color: #000000;
-  min-height: 100vh;
+.login-viewport {
+  background-color: var(--black);
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Inter', sans-serif;
-  cursor: none; /* Custom cursor focus */
-  padding: 24px;
 }
 
-/* ============================================================
-   2. MAIN CONTAINER (Compact & Balanced)
-   ============================================================ */
-.login-grid-container {
+/* Reduced Size Card */
+.compact-card {
+  width: 900px; /* Chota size */
+  height: 580px;
+  background: var(--dark-grey);
+  border: 1px solid var(--border);
+  border-radius: 28px;
   display: flex;
-  width: 100%;
-  max-width: 980px; /* Thora aur compact kiya focus ke liye */
-  min-height: 600px;
-  background: #0a0a0a;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
-  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7);
 }
 
-/* ============================================================
-   3. VISUAL PANEL (Left Side)
-   ============================================================ */
-.login-visual-box {
-  flex: 1.1;
-  background: linear-gradient(150deg, #0f172a 0%, #000000 100%);
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 50px;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.visual-title {
-  font-size: clamp(2.2rem, 3.5vw, 3rem);
-  color: #ffffff;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -1px;
-}
-
-.visual-title span {
-  background: linear-gradient(90deg, #22c55e, #10b981);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.visual-subtitle {
-  color: #94a3b8;
-  margin-top: 18px;
-  font-size: 1rem;
-  line-height: 1.6;
-  max-width: 320px;
-}
-
-.stats-row {
-  display: flex;
-  gap: 35px;
-  margin-top: 45px;
-}
-
-.stat-item strong {
-  display: block;
-  font-size: 1.6rem;
-  color: #ffffff;
-}
-
-.stat-item span {
-  color: #4b5563;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-}
-
-/* ============================================================
-   4. AUTH FORM (Right Side)
-   ============================================================ */
-.login-form-box {
+/* FORM AREA */
+.form-area {
   flex: 1;
+  padding: 50px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
+  flex-direction: column;
 }
 
-.form-card {
-  width: 100%;
-  max-width: 330px;
-}
+.text-header h2 { font-size: 1.8rem; margin: 30px 0 5px; font-weight: 800; color: var(--white); }
+.text-header p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px; }
 
-.form-head h2 {
-  color: #ffffff;
-  font-size: 1.9rem;
-  font-weight: 800;
-}
-
-.form-head p {
-  color: #64748b;
-  font-size: 0.9rem;
-  margin-top: 6px;
-  margin-bottom: 30px;
-}
-
-/* Premium Role Switch */
-.role-switch-premium {
+.role-pills {
   display: flex;
-  background: #111827;
+  background: #111;
   padding: 4px;
   border-radius: 12px;
-  margin-bottom: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  margin-bottom: 25px;
 }
 
-.switch-btn {
+.role-pills button {
   flex: 1;
   padding: 10px;
   border: none;
   background: transparent;
-  color: #64748b;
-  font-weight: 700;
-  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+  cursor: pointer;
   border-radius: 9px;
-  cursor: pointer;
-  transition: 0.2s;
+  transition: 0.3s;
 }
 
-.switch-btn.active {
-  background: #ffffff;
-  color: #000000;
+.role-pills button.active {
+  background: var(--green);
+  color: #000;
 }
 
-/* Input Fields */
-.input-field-wrapper {
-  margin-bottom: 18px;
-}
-
-.input-field-wrapper label {
-  display: block;
-  color: #9ca3af;
-  font-size: 11px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-
-.input-field-wrapper input {
+.input-grp { margin-bottom: 20px; }
+.input-grp label { display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; }
+.input-grp input {
   width: 100%;
-  padding: 14px 16px;
-  background: #111827;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 14px;
+  background: #111;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  color: #ffffff;
-  font-size: 14px;
-}
-
-.input-field-wrapper input:focus {
+  color: var(--white);
   outline: none;
-  border-color: #22c55e;
-  background: #151d2e;
 }
+.input-grp input:focus { border-color: var(--green); }
 
-/* Sign In Button */
-.pro-login-btn {
+.login-action {
   width: 100%;
-  padding: 15px;
-  margin-top: 25px;
-  background: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
-  color: #ffffff;
+  padding: 16px;
+  background: var(--white);
+  color: #000;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   font-weight: 800;
-  font-size: 15px;
   cursor: pointer;
-  transition: transform 0.2s;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+.login-action:hover { background: var(--green); transform: translateY(-2px); }
+
+/* DESIGN AREA (CSS Only Design) */
+.design-area {
+  flex: 0.9;
+  background: #000;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--border);
+  overflow: hidden;
 }
 
-.pro-login-btn:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
+/* Abstract Shapes */
+.abstract-shape {
+  position: absolute;
+  top: -10%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, var(--green), transparent);
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
 }
 
-.pro-login-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.abstract-glow {
+  position: absolute;
+  bottom: -5%;
+  left: -5%;
+  width: 200px;
+  height: 200px;
+  background: var(--green);
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.1;
 }
 
-/* Footer Link */
-.hr-signup-link {
-  margin-top: 25px;
+.content-overlay {
+  position: relative;
+  z-index: 2;
   text-align: center;
-  color: #64748b;
-  font-size: 13px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 20px;
+  padding: 40px;
 }
 
-.hr-signup-link a {
-  color: #22c55e;
-  text-decoration: none;
+.quote-wrap p {
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.5;
+  font-style: italic;
+  color: #eee;
+  margin-bottom: 15px;
+}
+
+.quote-wrap span {
+  color: var(--green);
   font-weight: 700;
-  margin-left: 5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 0.75rem;
 }
 
-/* ============================================================
-   5. RESPONSIVE QUERIES
-   ============================================================ */
+.feature-badges {
+  margin-top: 50px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Loader Spinner */
+.loader {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin: auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 @media (max-width: 900px) {
-  .login-grid-container {
-    flex-direction: column;
-    max-width: 440px;
-    border-radius: 20px;
-  }
-  .login-visual-box { display: none; }
-  .pro-cursor { display: none; }
-  .pro-login-page { cursor: default; }
-  .login-form-box { padding: 40px 24px; }
+  .compact-card { width: 100%; height: auto; flex-direction: column; border-radius: 0; }
+  .design-area { display: none; }
 }
